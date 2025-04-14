@@ -1,0 +1,21 @@
+<h1>Latest Weather Entries</h1>
+<%= link_to 'New Weather Entry', new_weather_path %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Zipcode</th>
+      <th>Temperature</th> <!-- Add other columns as needed -->
+      <th>Created At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @weathers.each do |weather| %>
+      <tr>
+        <td><%= weather.zipcode %></td>
+        <td><%= weather.temperature %></td> <!-- Adjust this according to your attributes -->
+        <td><%= weather.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
