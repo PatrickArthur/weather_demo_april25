@@ -41,23 +41,24 @@ RSpec.describe WeatherService do
     end
 
     it 'uses cached forecast data if available' do
-      # Simulate caching some data
+      # Simulate caching some data, ensure it's cached as a Hash
       Rails.cache.write(zip, JSON.parse(response_body_for_other_zip))
 
       # Confirm cache contains data
       expect(subject.cached?).to be_truthy
 
-      # Fetch forecast data, should retrieve from cache without network call
+      # Fetch forecast data; it should retrieve from cache without network call
       result = subject.fetch_forecast
 
-      # Parse the result to match the expected hash
-      parsed_result = JSON.parse(result)
+      # Since fetch_forecast should return a Hash (not a raw JSON string), we do not need to parse it
+      # Assuming response_body_for_other_zip is a raw JSON string, parse it for comparison
+      parsed_expected = JSON.parse(response_body_for_other_zip)
 
       # Verify the result matches cached response
-      expect(parsed_result).to eq(JSON.parse(response_body_for_other_zip))
+      expect(result).to eq(parsed_expected)
 
       # Ensure no network call was made due to the presence of a cache
-      expect(WebMock).not_to have_requested(:get, base_url)
+      expect(WebMock).not_to have_requested(:get, 'https://api.weatherapi.com/v1')
         .with(query: { key: api_key, q: zip })
     end
   end
