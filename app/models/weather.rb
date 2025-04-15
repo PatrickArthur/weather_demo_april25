@@ -1,5 +1,6 @@
 class Weather < ApplicationRecord
   validates :zipcode, presence: true, uniqueness: true
+  validates :zipcode, numericality: { only_integer: true, message: "must be a number" }
 
   # Ensures fetching data is placed within a rescue block
   after_create :fetch_and_store_weather_data
