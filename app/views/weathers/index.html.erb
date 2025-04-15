@@ -1,20 +1,25 @@
 <h1>Latest Weather Entries</h1>
-<%= link_to 'New Weather Entry', new_weather_path %>
+<%= link_to 'New Weather Entry', new_weather_path, class: 'new-weather-button' %>
 
-<table>
+<table class="weather-table">
   <thead>
     <tr>
       <th>Zipcode</th>
-      <th>Temperature</th> <!-- Add other columns as needed -->
+      <th>Temperature</th>
       <th>Created At</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @weathers.each do |weather| %>
       <tr>
         <td><%= weather.zipcode %></td>
-        <td><%= weather.temperature %></td> <!-- Adjust this according to your attributes -->
+        <td><%= weather.temperature %></td>
         <td><%= weather.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        <td>
+          <%= link_to 'Edit', edit_weather_path(weather), class: 'edit-button' %> |
+          <%= link_to "Delete", weather_path(weather), data: { turbo_method: :delete }, class: "delete-button" %>
+        </td>
       </tr>
     <% end %>
   </tbody>

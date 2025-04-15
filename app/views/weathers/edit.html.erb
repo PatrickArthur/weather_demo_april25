@@ -15,8 +15,10 @@
     <%= form.text_field :zipcode, class: 'form-input' %>
   </div>
 
+  <!-- Add additional fields as needed, based on your Weather model's attributes -->
+
   <div class="actions">
-    <%= form.submit 'Save Weather', class: 'form-submit' %>
+    <%= form.submit 'Update Weather', class: 'form-submit' %>
     <%= link_to 'Back to Index', weathers_path, class: 'form-submit back-button' %>
   </div>
 <% end %>

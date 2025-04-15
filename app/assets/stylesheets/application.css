@@ -8,3 +8,118 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+.weather-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+
+  .error-box {
+    background-color: #ffe6e6;
+    color: #a94442;
+    border: 1px solid #a94442;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+
+  .error-box h2 {
+    margin-top: 0;
+  }
+
+  .field, .actions {
+    margin-bottom: 15px;
+  }
+
+  .form-label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .form-submit {
+  	width: 100%;
+	padding: 10px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 16px;
+	transition: background-color 0.3s ease;
+	text-align: center;
+   }
+
+   .form-submit:hover {
+	  background-color: #45a049;
+	}
+
+	.back-button {
+	  display: block;
+	  margin-top: 5px;
+	  background-color: #f44336; /* Different color for distinction */
+	}
+
+	.back-button:hover {
+	  background-color: #e53935; /* Different hover color */
+	}
+
+	.new-weather-button, .edit-button, .delete-button {
+	  background-color: #007BFF;
+	  color: white;
+	  text-decoration: none;
+	  padding: 5px 10px;
+	  border-radius: 4px;
+	  transition: background-color 0.3s ease;
+	  font-size: 14px;
+	}
+
+	.new-weather-button:hover, .edit-button:hover, .delete-button:hover {
+	  background-color: #0056b3;
+	}
+
+	.delete-button {
+	  background-color: #f44336;
+	}
+
+	.delete-button:hover {
+	  background-color: #e53935;
+	}
+
+	/* Table styles */
+	.weather-table {
+	  width: 100%;
+	  border-collapse: collapse;
+	  margin-top: 20px;
+	}
+
+	.weather-table th, .weather-table td {
+	  border: 1px solid #ddd;
+	  padding: 8px;
+	  text-align: center;
+	}
+
+	.weather-table th {
+	  background-color: #f4f4f4;
+	  font-weight: bold;
+	}
+
+	.weather-table tr:nth-child(even) {
+	  background-color: #f2f2f2;
+	}
+
+	.weather-table tr:hover {
+	  background-color: #ddd;
+	}
