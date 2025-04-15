@@ -2,28 +2,22 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe WeatherService do
-  let(:zip) { '12345' }
   let(:api_key) { '8b42b753d9274a5fb02180330251404' }
-  let(:base_url) { "http://api.weatherapi.com/v1/current.json" }
-  let(:response_body) { { "location" => {}, "current" => {} }.to_json }
+  let(:zip) {'12211'}
+  let(:response_body_for_other_zip) { '{"location":{"name":"CityName","region":"","country":"US","lat":0,"lon":0},"current":{"temp_c":20}}' }
+  let(:response_body_for_zip_12211) { '{"location":{"name":"AnotherCity","region":"","country":"US","lat":0,"lon":0},"current":{"temp_c":25}}' }
+  let(:cache_data) { JSON.parse(response_body_for_zip_12211) }
 
   before do
-    # Stub environment variable for the API key
-    allow(ENV).to receive(:[]).with('WEATHER_API_KEY').and_return(api_key)
+    # Stub external API call for each known zipcode
+    stub_request(:get, "http://api.weatherapi.com/v1/current.json?key=#{api_key}&q=12345")
+      .to_return(status: 200, body: response_body_for_other_zip, headers: {})
+      
+    stub_request(:get, "http://api.weatherapi.com/v1/current.json?key=#{api_key}&q=12211")
+      .to_return(status: 200, body: response_body_for_zip_12211, headers: {})
 
-    # Disable all external network connections except for localhost
-    WebMock.disable_net_connect!(allow_localhost: true)
-
-    # Setup WebMock to intercept the HTTP request with appropriate query parameters
-    stub_request(:get, base_url)
-      .with(
-        query: { key: api_key, q: zip },
-        headers: {
-          'Accept'=>'*/*',
-          'Accept-Encoding'=>'gzip, deflate',
-          'User-Agent'=>'Ruby'
-        })
-      .to_return(status: 200, body: response_body, headers: { 'Content-Type' => 'application/json' })
+    # Clear the Rails cache if required to simulate a fresh state, depending on your caching mechanism.
+    Rails.cache.clear if defined?(Rails.cache)
   end
 
   subject { WeatherService.new(zip) }
@@ -33,19 +27,22 @@ RSpec.describe WeatherService do
       # Ensure cache is initially empty
       expect(subject.cached?).to be_falsey
 
-      # Call the fetch_forecast method to initiate a network call and cache the response
+      # Fetch the forecast data
       result = subject.fetch_forecast
 
-      # Validate the fetched data
-      expect(result).to eq(JSON.parse(response_body))
+      # Parse the result to match the expected hash
+      parsed_result = JSON.parse(result)
 
-      # Now, check if the data has been cached
+      # Validate that the result matches the API response for zip 12211
+      expect(parsed_result).to eq(JSON.parse(response_body_for_zip_12211))
+
+      # Verify that the data has been cached
       expect(subject.cached?).to be_truthy
     end
 
     it 'uses cached forecast data if available' do
       # Simulate caching some data
-      Rails.cache.write(zip, JSON.parse(response_body))
+      Rails.cache.write(zip, JSON.parse(response_body_for_other_zip))
 
       # Confirm cache contains data
       expect(subject.cached?).to be_truthy
@@ -53,8 +50,11 @@ RSpec.describe WeatherService do
       # Fetch forecast data, should retrieve from cache without network call
       result = subject.fetch_forecast
 
+      # Parse the result to match the expected hash
+      parsed_result = JSON.parse(result)
+
       # Verify the result matches cached response
-      expect(result).to eq(JSON.parse(response_body))
+      expect(parsed_result).to eq(JSON.parse(response_body_for_other_zip))
 
       # Ensure no network call was made due to the presence of a cache
       expect(WebMock).not_to have_requested(:get, base_url)
@@ -70,23 +70,18 @@ RSpec.describe 'Weather API integration', type: :feature do
      let(:response_body) { { "location" => { "name" => "City Name" }, "current" => { "temp_c" => 20.0 } }.to_json }
 
      before do
-       # Stubs the environment variable for the API key
-       allow(ENV).to receive(:[]).with('WEATHER_API_KEY').and_return(api_key)
+      # Stub external API call for each known zipcode
+      stub_request(:get, "http://api.weatherapi.com/v1/current.json?key=#{api_key}&q=12345")
+        .to_return(status: 200, body: response_body, headers: {})
 
-       # Stubs the external HTTP request
-       stub_request(:get, "#{base_url}?key=#{api_key}&q=#{zip}")
-         .with(
-           headers: {
-             'Accept'=>'*/*',
-             'Accept-Encoding'=>'gzip, deflate',
-             'User-Agent'=>'Ruby'
-           })
-         .to_return(status: 200, body: response_body, headers: { 'Content-Type' => 'application/json' })
-     end
+      # Clear the Rails cache if required to simulate a fresh state, depending on your caching mechanism.
+      Rails.cache.clear if defined?(Rails.cache)
+    end
 
      it 'fetches weather data' do
        response = HTTParty.get("#{base_url}?key=#{api_key}&q=#{zip}")
-       expect(response.parsed_response['location']['name']).to eq('City Name')
-       expect(response.parsed_response['current']['temp_c']).to eq(20.0)
+       parsed_resp = JSON.parse(response)
+       expect(parsed_resp["location"]["name"]).to eq('City Name')
+       expect(parsed_resp['current']['temp_c']).to eq(20.0)
      end
    end

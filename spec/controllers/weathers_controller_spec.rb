@@ -2,6 +2,17 @@
 require 'rails_helper'
 
 RSpec.describe WeathersController, type: :controller do
+  let(:api_key) { '8b42b753d9274a5fb02180330251404' }
+
+  before do
+    # Stub external API call for each known zipcode
+    stub_request(:get, "http://api.weatherapi.com/v1/current.json?key=#{api_key}&q=12345")
+      .to_return(status: 200, body: '{"location":{"name":"CityName","region":"","country":"US","lat":0,"lon":0},"current":{"temp_c":20}}', headers: {})
+      
+    stub_request(:get, "http://api.weatherapi.com/v1/current.json?key=#{api_key}&q=12211")
+      .to_return(status: 200, body: '{"location":{"name":"AnotherCity","region":"","country":"US","lat":0,"lon":0},"current":{"temp_c":25}}', headers: {})
+  end
+
   describe "GET #index" do
     it "assigns @weathers" do
       weather1 = FactoryBot.create(:weather, zipcode: "12345")
